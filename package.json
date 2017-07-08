@@ -1,0 +1,25 @@
+{
+  "name": "overlap-twitter-bot",
+  "version": "0.1.0",
+  "description": "Overlap's personal info bot!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/overlapshow/overlap-twitter-bot.git"
+  },
+  "keywords": [
+    "twitter"
+  ],
+  "author": "Andrew Thompson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/overlapshow/overlap-twitter-bot/issues"
+  },
+  "homepage": "https://github.com/overlapshow/overlap-twitter-bot#readme",
+  "dependencies": {
+    "twit": "^2.2.9"
+  }
+}
