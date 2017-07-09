@@ -26,5 +26,7 @@ module.exports = {
   RECOULES_QUANG  : "Sabrina is exploring the similarities between shadow theatre, embodiment and computational practice. More info: http://overlap.show/artist/sabrina-recoules-quang/",
   RUBIM           : "Luis creates interactive art and physical objects using code to exploring play and mimicry. More info: http://overlap.show/artist/luis-rubim/",
   SON             : "Yeoul focuses on exploring the relationships between data sets and how they can be seen differently. More info: http://overlap.show/artist/yeoul-son/",
-  THOMPSON        : "Andrew is researching the dichotomy of work and play, and how that manifests itself in instrument design. More info: http://overlap.show/artist/andrew-thompson/"
+  THOMPSON        : "Andrew is researching the dichotomy of work and play, and how that manifests itself in instrument design. More info: http://overlap.show/artist/andrew-thompson/",
+  
+  UNDEFINED       : "Oops, I didn't quite catch you there! Try again or read about our artists here: http://overlap.show/"
 }
