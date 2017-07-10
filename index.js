@@ -1,8 +1,9 @@
 // Dependencies =========================
-var config    = require('./config/config.js'),
-    twitter   = require('./src/Twitter.js');
+var twitter = require('./src/Twitter.js');
 
-twitter.init(config);
+require('dotenv').config()
+
+twitter.init();
 twitter.setupStream();
 
 process.on('exit', function () {

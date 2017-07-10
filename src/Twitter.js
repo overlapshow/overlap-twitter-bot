@@ -8,23 +8,23 @@ var T         = null,
     username  = "";
 
 module.exports = {
-  init        : function (config) {
+  init        : function() {
     console.log("Creating twit object with the following credentials {");
-    console.log("  Twitter handle: @" + config.USERNAME);
-    console.log("  Consumer Key: " + config.CONSUMER_KEY);
-    console.log("  Consumer Secret: " + config.CONSUMER_SECRET);
-    console.log("  Access Token: " + config.ACCESS_TOKEN_KEY);
-    console.log("  Access Secret: " + config.ACCESS_TOKEN_SECRET);
+    console.log("  Twitter handle: @" + process.env.TWITTER_USERNAME);
+    console.log("  Consumer Key: " + process.env.CONSUMER_KEY);
+    console.log("  Consumer Secret: " + process.env.CONSUMER_SECRET);
+    console.log("  Access Token: " + process.env.ACCESS_TOKEN_KEY);
+    console.log("  Access Secret: " + process.env.ACCESS_TOKEN_SECRET);
     console.log("}");
     
     T = new twit({
-      consumer_key:         config.CONSUMER_KEY,
-      consumer_secret:      config.CONSUMER_SECRET,
-      access_token:         config.ACCESS_TOKEN_KEY,
-      access_token_secret:  config.ACCESS_TOKEN_SECRET,
+      consumer_key:         process.env.CONSUMER_KEY,
+      consumer_secret:      process.env.CONSUMER_SECRET,
+      access_token:         process.env.ACCESS_TOKEN_KEY,
+      access_token_secret:  process.env.ACCESS_TOKEN_SECRET,
       timeout_ms:           60*1000,
     });
-    username = config.USERNAME;
+    username = process.env.TWITTER_USERNAME;
   },
   
   setupStream : function () {
