@@ -1,33 +1,40 @@
 // Dependencies =========================
 var twit      = require('twit'),
-    Artists   = require('./Artists.js'),
+    artists   = require('./Artists.js'),
     Utils     = require('./Utils.js');
 
 // Local Variables ======================
 var T         = null,
     username  = "";
 
+function makeResponseFromArtist(artist) {
+  if (artist === undefined) {
+    return 'Oops, I didn\'t quite catch you there! Try again or read about our artists here: http://overlap.show/';
+  }
+  return artist.snippet+' More info: http://overlap.show/artist/'+artist.slug;
+}
+
 module.exports = {
-  init        : function (config) {
+  init: function() {
     console.log("Creating twit object with the following credentials {");
-    console.log("  Twitter handle: @" + config.USERNAME);
-    console.log("  Consumer Key: " + config.CONSUMER_KEY);
-    console.log("  Consumer Secret: " + config.CONSUMER_SECRET);
-    console.log("  Access Token: " + config.ACCESS_TOKEN_KEY);
-    console.log("  Access Secret: " + config.ACCESS_TOKEN_SECRET);
+    console.log("  Twitter handle: @" + process.env.TWITTER_USERNAME);
+    console.log("  Consumer Key: " + process.env.CONSUMER_KEY);
+    console.log("  Consumer Secret: " + process.env.CONSUMER_SECRET);
+    console.log("  Access Token: " + process.env.ACCESS_TOKEN_KEY);
+    console.log("  Access Secret: " + process.env.ACCESS_TOKEN_SECRET);
     console.log("}");
     
     T = new twit({
-      consumer_key:         config.CONSUMER_KEY,
-      consumer_secret:      config.CONSUMER_SECRET,
-      access_token:         config.ACCESS_TOKEN_KEY,
-      access_token_secret:  config.ACCESS_TOKEN_SECRET,
+      consumer_key:         process.env.CONSUMER_KEY,
+      consumer_secret:      process.env.CONSUMER_SECRET,
+      access_token:         process.env.ACCESS_TOKEN_KEY,
+      access_token_secret:  process.env.ACCESS_TOKEN_SECRET,
       timeout_ms:           60*1000,
     });
-    username = config.USERNAME;
+    username = process.env.TWITTER_USERNAME;
   },
   
-  setupStream : function () {
+  setupStream: function () {
     console.log("Setting up Twitter stream with the following parameters {");
     console.log("  track: @" + username);
     console.log("}");
@@ -40,149 +47,41 @@ module.exports = {
       
       message = Utils.sanitze(tweet.text);
       
-      if(message.substring(0, 27) === "@overlapshow tell me about ") {
-        var artist      = message.slice(27),
-            tweetID     = tweet.id_str,
-            user        = tweet.user.screen_name,
-            response    = "@" + user + " ";
-        
-        switch(artist) {
-          case "thalia":
-          case "thalia agroti":  
-            response += Artists['AGROTI'];
-            break;
-          case "eleni":
-          case "eleni alexandri":
-            response += Artists['ALEXANDRI'];
-            break;
-          case "arturas":
-          case "arturas bondarciukas":
-            response += Artists['BONDARCIUKAS'];
-            break;
-          case "amy":
-          case "amy cartwright":
-            response += Artists['CARTWRIGHT'];
-            break;
-          case "charlotte":
-          case "charlotte dann":
-            response += Artists['DANN'];
-            break;
-          case "laura":
-          case "laura dekker":
-            response += Artists['DEKKER'];
-            break;
-          case "diane":
-          case "diane edwards":
-            response += Artists['EDWARDS'];
-            break;
-          case "saskia":
-          case "saskia freeke":
-            response += Artists['FREEKE'];
-            break;
-          case "miduo":
-          case "miduo gao":
-            response += Artists['GAO'];
-            break;
-          case "jakob":
-          case "jakob glock":
-            response += Artists['GLOCK'];
-            break;
-          case "georgios":
-          case "georgios greekalogerakis":
-            response += Artists['GREEKALOGERAKIS'];
-            break;
-          case "jayson":
-          case "jayson haebich":
-            response += Artists['HAEBICH'];
-            break;
-          case "jade":
-          case "jade hall smith":
-            response += Artists['HALL_SMITH'];
-            break;
-          case "freddie":
-          case "freddie hong":
-            response += Artists['HONG'];
-            break;
-          case "ewa":
-          case "ewa justka":
-            response += Artists['JUSTKA'];
-            break;
-          case "natthakit":
-          case "natthakit kangsadansenanon":
-            response += Artists['KANGSADANSENANON'];
-            break;
-          case "mehrbano":
-          case "mehrbano khattak":
-            response += Artists['KHATTAK'];
-            break;
-          case "philip":
-          case "philip liu":
-            response += Artists['LIU'];
-            break;
-          case "alix":
-          case "alix martinez":
-          case "alix martínez":
-            response += Artists['MARTINEZ'];
-            break;
-          case "friendred":
-            response += Artists['FRIENDRED'];
-            break;
-          case "howard":
-          case "howard melnyczuk":
-            response += Artists['MELNYCZUK'];
-            break;
-          case "soon":
-          case "soon park":
-            response += Artists['SOON'];
-            break;
-          case "nadia":
-          case "nadia rahat":
-            response += Artists['RAHAT'];
-            break;
-          case "sabrina":
-          case "sabrian recoules quang":
-            response += Artists['RECOULES_QUANG'];
-            break;
-          case "lius":
-          case "lius rubim":
-            response += Artists['RUBIM'];
-            break;
-          case "yeoul":
-          case "yeoul son":
-            response += Artists['SON'];
-            break;
-          case "andrew":
-          case "andrew thompson":
-            response += Artists['THOMPSON'];
-            break;
+      if (message.substring(0, 27) === "@overlapshow tell me about ") {
+        var tweetText      = message.slice(27),
+            tweetID        = tweet.id_str,
+            user           = tweet.user.screen_name,
+            selectedArtist = undefined;
 
-          default:
-            response += Artists['UNDEFINED'];
-            break;
-        }
-
-        if(response !== "") {
-          T.post('statuses/update', {
-            status                    : response,
-            in_reply_to_status_id     : tweetID
-          }, function(err, data, response) {
-            if(err) {
-              console.log("Error posting tweet:");
-              console.log(err);
-            } else {
-              console.log("Reply posted! {");
-              console.log("  status: " + response);
-              console.log("  in_reply_to_status_id: " + tweetID);
-              console.log("}");
-              //console.log(data);
+        for (var i = 0; i < artists.length; i++) {
+          for (var j = 0; j < artists[i].keywords.length; j++) {
+            // if the keyword is part of the tweet then set the artist
+            if (tweetText.indexOf(artists[i].keywords[j]) > -1) {
+              selectedArtist = artists[i];
             }
-          })
-        } 
+          };
+        };
+
+        var response = '@'+user+' '+makeResponseFromArtist(selectedArtist);
+        T.post('statuses/update', {
+          status                    : response,
+          in_reply_to_status_id     : tweetID
+        }, function(err, data, response) {
+          if(err) {
+            console.log("Error posting tweet:");
+            console.log(err);
+          } else {
+            console.log("Reply posted! {");
+            console.log("  status: " + response);
+            console.log("  in_reply_to_status_id: " + tweetID);
+            console.log("}");
+          }
+        });
       }
     });
   },
   
-  exit        : function () {
+  exit: function () {
     T.stream.stop();
   }
 }

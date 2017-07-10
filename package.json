@@ -4,6 +4,7 @@
   "description": "Overlap's personal info bot!",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/overlapshow/overlap-twitter-bot#readme",
   "dependencies": {
+    "dotenv": "^4.0.0",
     "twit": "^2.2.9"
   }
 }
