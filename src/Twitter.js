@@ -1,7 +1,9 @@
 // Dependencies =========================
 var twit      = require('twit'),
     artists   = require('./Artists.js'),
-    Utils     = require('./Utils.js');
+    utils     = require('./Utils.js'),
+    base64Img = require('base64-img');
+
 
 // Local Variables ======================
 var T         = null,
@@ -14,12 +16,55 @@ function makeResponseFromArtist(artist) {
   return artist.snippet+' More info: http://overlap.show/artist/'+artist.slug;
 }
 
+function getMediaURLFromArtist(artist) {
+  if (artist === undefined) {
+    return null;
+  }
+  return artist.photo;
+}
+
+function uploadMedia(twitter, mediaURL) {
+  var imageStr;
+  
+  console.log("Encoding media to base64...");
+  base64Img.requestBase64(mediaURL, function(err, res, body) {
+    if (!err) {
+      var imageData = body;
+      
+      console.log("Uploading base64 media to twitter...");
+      twitter.post('media/upload', {
+        media_data: imageData
+      }, function(err, data, response) {
+        if (!err) {
+          console.log("Media ID string {");
+          console.log("  "+data.media_id_str);
+          console.log("}");
+
+          imageStr = data.media_id_str;
+        } else {
+          console.log("Error uploading media to twitter:");
+          console.log(err);
+          imageStr = null;
+        }
+      });
+    } else {
+      console.log("Error convtering media URL to base64:");
+      console.log(err);
+    }
+  });
+  
+  return imageStr;
+}
+
 function postTweet(twitter, ID, username, artist) {
-  var response = '@'+username+' '+makeResponseFromArtist(artist);
+  var response    = '@'+username+' '+makeResponseFromArtist(artist),
+      mediaURL    = getMediaURLFromArtist(artist),
+      mediaID     = uploadMedia(twitter, mediaURL);
 
   twitter.post('statuses/update', {
-    status                    : response,
-    in_reply_to_status_id     : ID
+    status                : response,
+    in_reply_to_status_id : ID,
+    media_ids             : mediaID
   }, function(err, data, response) {
     if(err) {
       console.log("Error posting tweet:");
@@ -62,11 +107,11 @@ module.exports = {
     
     stream.on('tweet', function (tweet) {
       console.log("Tweet recieved {");
-      console.log("  username"+tweet.user.screen_name);
-      console.log("  tweet"+tweet.text);
+      console.log("  username: "+tweet.user.screen_name);
+      console.log("  tweet: "+tweet.text);
       console.log("}");
       
-      message = Utils.sanitze(tweet.text);
+      message = utils.sanitze(tweet.text);
       
       if (message.substring(0, 27) === "@overlapshow tell me about ") {
         var tweetText      = message.slice(27),
