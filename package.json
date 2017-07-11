@@ -1,6 +1,6 @@
 {
   "name": "overlap-twitter-bot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Overlap's personal info bot!",
   "main": "index.js",
   "scripts": {
