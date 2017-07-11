@@ -14,6 +14,25 @@ function makeResponseFromArtist(artist) {
   return artist.snippet+' More info: http://overlap.show/artist/'+artist.slug;
 }
 
+function postTweet(twitter, ID, username, artist) {
+  var response = '@'+username+' '+makeResponseFromArtist(artist);
+
+  twitter.post('statuses/update', {
+    status                    : response,
+    in_reply_to_status_id     : ID
+  }, function(err, data, response) {
+    if(err) {
+      console.log("Error posting tweet:");
+      console.log(err);
+    } else {
+      console.log("Reply posted! {");
+      console.log("  status: " + response);
+      console.log("  in_reply_to_status_id: " + ID);
+      console.log("}");
+    }
+  });
+}
+
 module.exports = {
   init: function() {
     console.log("Creating twit object with the following credentials {");
@@ -42,41 +61,33 @@ module.exports = {
     var stream = T.stream('statuses/filter', {track: '@'+username});
     
     stream.on('tweet', function (tweet) {
-      console.log("Tweet recieved!");
-      console.log(tweet);
+      console.log("Tweet recieved {");
+      console.log("  username"+tweet.user.screen_name);
+      console.log("  tweet"+tweet.text);
+      console.log("}");
       
       message = Utils.sanitze(tweet.text);
       
       if (message.substring(0, 27) === "@overlapshow tell me about ") {
         var tweetText      = message.slice(27),
-            tweetID        = tweet.id_str,
+            statusID       = tweet.id_str,
             user           = tweet.user.screen_name,
-            selectedArtist = undefined;
+            selectedArtist = [];
 
         for (var i = 0; i < artists.length; i++) {
           for (var j = 0; j < artists[i].keywords.length; j++) {
             // if the keyword is part of the tweet then set the artist
             if (tweetText.indexOf(artists[i].keywords[j]) > -1) {
-              selectedArtist = artists[i];
+              selectedArtist.push(artists[i]);
             }
           };
         };
 
-        var response = '@'+user+' '+makeResponseFromArtist(selectedArtist);
-        T.post('statuses/update', {
-          status                    : response,
-          in_reply_to_status_id     : tweetID
-        }, function(err, data, response) {
-          if(err) {
-            console.log("Error posting tweet:");
-            console.log(err);
-          } else {
-            console.log("Reply posted! {");
-            console.log("  status: " + response);
-            console.log("  in_reply_to_status_id: " + tweetID);
-            console.log("}");
+        if (selectedArtist.length > 0) {
+          for (var i = 0; i < selectedArtist.length; i++) {
+            postTweet(T, statusID, user, selectedArtist[i]);
           }
-        });
+        }
       }
     });
   },
