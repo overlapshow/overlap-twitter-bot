@@ -150,8 +150,8 @@ module.exports = [
     photo: 'http://res.cloudinary.com/overlap-show/image/upload/portraits/sabrina.jpg',
   },
   {
-    keywords: ['lius', 'lius rubim'],
-    slug: 'lius-rubim',
+    keywords: ['luis', 'luis rubim'],
+    slug: 'luis-rubim',
     snippet: 'Luis creates interactive art and physical objects using code to exploring play and mimicry.',
     photo: 'http://res.cloudinary.com/overlap-show/image/upload/portraits/luis.jpg',
   },
