@@ -20,7 +20,7 @@ module.exports = [
     snippet: 'Amy is a dancercreating computational choreographies that use technology within live performance.',
   },
   {
-    keywords: ['charlotte', 'charlotte dann'],
+    keywords: ['charlotte', 'charlotte dann', '@charlotte_dann'],
     slug: 'charlotte-dann',
     snippet: 'Charlotte\'s work centres around nullifying the contradiction between being a maker and a programmer.',
   },
@@ -35,7 +35,7 @@ module.exports = [
     snippet: 'Diane focuses on the human microbiome, digital/organic ontologies and questions of more-than-human life.',
   },
   {
-    keywords: ['saskia', 'saskia freeke'],
+    keywords: ['saskia', 'saskia freeke', '@sasj_nl'],
     slug: 'saskia-freeke',
     snippet: 'Saskia\'s art work focuses on structure, geometry and playfulness by creating novel, tangible interfaces.',
   },
@@ -95,12 +95,12 @@ module.exports = [
     snippet: 'Alix reflects on universal emotions and the relationship between humans with technology.',
   },
   {
-    keywords: ['friendred'],
+    keywords: ['friendred', '@ friendred'],
     slug: 'friendred',
     snippet: 'Friendred focuses on a dialogue between spatiotemporal substances, sex and theology.',
   },
   {
-    keywords: ['howard', 'howard melnyczuk'],
+    keywords: ['howard', 'howard melnyczuk', '@melnyczuk'],
     slug: 'howard-melnyczuk',
     snippet: 'Howard explores creation, archiving and implementation of data structures to create alternate realities.',
   },
@@ -135,7 +135,7 @@ module.exports = [
     snippet: 'Yeoul focuses on exploring the relationships between data sets and how they can be seen differently.',
   },
   {
-    keywords: ['andrew', 'andrew thompson'],
+    keywords: ['andrew', 'andrew thompson', '@pdandyuk'],
     slug: 'andrew-thompson',
     snippet: 'Andrew is researching the dichotomy of work and play, and how that manifests itself in instrument design.',
   },
