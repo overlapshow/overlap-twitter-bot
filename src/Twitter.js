@@ -1,8 +1,8 @@
 // Dependencies =========================
 var twit      = require('twit'),
+    fs        = require('fs'),
     artists   = require('./Artists.js'),
-    utils     = require('./Utils.js'),
-    base64Img = require('base64-img');
+    utils     = require('./Utils.js');
 
 
 // Local Variables ======================
@@ -23,49 +23,69 @@ function getMediaURLFromArtist(artist) {
   return artist.photo;
 }
 
-function uploadMedia(twitter, mediaURL) {
-  var imageStr;
+function postMediaTweet (twitter, response, ID, file_path, artist_name) {
+  console.log("Encoding " + file_path + " to base64...")
+  var base64img = fs.readFileSync(file_path, {encoding: 'base64'}),
+      media_id_str,
+      alt_text  = "A photo of " + artist_name;
   
-  console.log("Encoding media to base64...");
-  base64Img.requestBase64(mediaURL, function(err, res, body) {
-    if (!err) {
-      var imageData = body;
+  console.log("Uploading media to Twitter...");
+  twitter.post('media/upload', {
+    media_data: base64img
+  }, function (error, data, response) {
+    if (error) {
+      console.log("Error uploading media:");
+      console.log(error);
+    } else {
+      media_id_str = data.media_id_string;
       
-      console.log("Uploading base64 media to twitter...");
-      twitter.post('media/upload', {
-        media_data: imageData
-      }, function(err, data, response) {
-        if (!err) {
-          console.log("Media ID string {");
-          console.log("  "+data.media_id_str);
-          console.log("}");
-
-          imageStr = data.media_id_str;
+      var meta_data = {
+        media_id: media_id_str,
+        alt_text: {
+          text: alt_text
+        }
+      };
+      
+      console.log("Creating image metadata...");
+      T.post('media/metadata/create', meta_data, function (error, data, response) {
+        if (error) {
+          console.log("Error creating media metadata:");
+          console.log(error);
         } else {
-          console.log("Error uploading media to twitter:");
-          console.log(err);
-          imageStr = null;
+          console.log("Posting tweet...");
+          
+          var params = {
+            status                : response,
+            in_reply_to_status_id : ID,
+            media_ids             : [media_id_str]
+          };
+          
+          console.log("Posting Tweet...");
+          twitter.post('statuses/update', params, function (error, data, response) {
+            if (error) {
+              console.log("Error posting tweet:");
+              console.log(error);
+            } else {
+              console.log("Reply posted! {");
+              console.log("  status: " + response);
+              console.log("  in_reply_to_status_id: " + ID);
+              console.log("  media_id: " + media_id_str);
+              console.log("}");
+              console.log("");
+            }
+          });
         }
       });
-    } else {
-      console.log("Error convtering media URL to base64:");
-      console.log(err);
     }
-  });
-  
-  return imageStr;
+  })
 }
 
-function postTweet(twitter, ID, username, artist) {
-  var response    = '@'+username+' '+makeResponseFromArtist(artist),
-      mediaURL    = getMediaURLFromArtist(artist),
-      mediaID     = uploadMedia(twitter, mediaURL);
-
+function postTextTweet(twitter, response, ID) {
+  console.log("Posting tweet...");
   twitter.post('statuses/update', {
     status                : response,
-    in_reply_to_status_id : ID,
-    media_ids             : mediaID
-  }, function(err, data, response) {
+    in_reply_to_status_id : ID
+  }, function (err, data, response) {
     if(err) {
       console.log("Error posting tweet:");
       console.log(err);
@@ -74,8 +94,18 @@ function postTweet(twitter, ID, username, artist) {
       console.log("  status: " + response);
       console.log("  in_reply_to_status_id: " + ID);
       console.log("}");
+      console.log("");
     }
   });
+}
+
+function postTweet(twitter, ID, username, artist) {
+  var response    = '@'+username+' '+makeResponseFromArtist(artist);
+  if (artist !== undefined) {   
+    postMediaTweet(twitter, response, ID, __dirname + artist.photo, artist.keywords[1]);
+  } else {
+    postTextTweet(twitter, response, ID);
+  }
 }
 
 module.exports = {
@@ -87,6 +117,7 @@ module.exports = {
     console.log("  Access Token: " + process.env.ACCESS_TOKEN_KEY);
     console.log("  Access Secret: " + process.env.ACCESS_TOKEN_SECRET);
     console.log("}");
+    console.log("");
     
     T = new twit({
       consumer_key:         process.env.CONSUMER_KEY,
@@ -102,14 +133,17 @@ module.exports = {
     console.log("Setting up Twitter stream with the following parameters {");
     console.log("  track: @" + username);
     console.log("}");
+    console.log("");
     
     var stream = T.stream('statuses/filter', {track: '@'+username});
     
     stream.on('tweet', function (tweet) {
       console.log("Tweet recieved {");
-      console.log("  username: "+tweet.user.screen_name);
-      console.log("  tweet: "+tweet.text);
+      console.log("  username: "  + tweet.user.screen_name);
+      console.log("  tweet: "     + tweet.text);
+      console.log("  status_ID: " + tweet.id_str)
       console.log("}");
+      console.log("");
       
       message = utils.sanitze(tweet.text);
       
@@ -131,7 +165,9 @@ module.exports = {
         if (selectedArtist.length > 0) {
           for (var i = 0; i < selectedArtist.length; i++) {
             postTweet(T, statusID, user, selectedArtist[i]);
-          }
+          } 
+        } else {
+          postTweet(T, statusID, user, undefined);
         }
       }
     });
