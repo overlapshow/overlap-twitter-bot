@@ -132,7 +132,8 @@ module.exports = {
       consumer_secret:      process.env.CONSUMER_SECRET,
       access_token:         process.env.ACCESS_TOKEN_KEY,
       access_token_secret:  process.env.ACCESS_TOKEN_SECRET,
-      timeout_ms:           60*1000,
+      // 5 minute timeout.
+      timeout_ms:           60*5000,
     });
     
     username = process.env.TWITTER_USERNAME;
