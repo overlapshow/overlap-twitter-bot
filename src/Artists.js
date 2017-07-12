@@ -18,7 +18,7 @@ module.exports = [
     photo: '/img/arturas.jpeg',
   },
   {
-    keywords: ['amy', 'amy cartwright'],
+    keywords: ['amy', 'amy cartwright', '@mapetiteamyy'],
     slug: 'amy-cartwright',
     snippet: 'Amy is a dancercreating computational choreographies that use technology within live performance.',
     photo: '/img/amy.jpeg',
@@ -54,7 +54,7 @@ module.exports = [
     photo: '/img/miduo.jpeg',
   },
   {
-    keywords: ['jakob', 'jakob glock'],
+    keywords: ['jakob', 'jakob glock', '@jakob glock'],
     slug: 'jakob-glock',
     snippet: 'Jakob uses code to build generative systems inspired by nature, science, sound and graphics programming.',
     photo: '/img/jakob.jpeg',
@@ -78,7 +78,7 @@ module.exports = [
     photo: '/img/jade.jpeg',
   },
   {
-    keywords: ['freddie', 'freddie hong'],
+    keywords: ['freddie', 'freddie hong', '@freddiehong1'],
     slug: 'freddie-hong',
     snippet: 'Freddie explores methods of involving human bodies, and other qualitative matters, in architecture.',
     photo: '/img/freddie.jpeg',
