@@ -30,16 +30,19 @@ function getMediaURLFromArtist(artist) {
 
 // Posts a tweet reply with an attatched image.
 function postMediaTweet (twitter, message, ID, file_path, artist_name) {
+  console.log("Encoding " + file_path + " to base64...");
   // Encode image as base64 before uploading to Twitter.
   var base64img = fs.readFileSync(file_path, {encoding: 'base64'}),
       media_id_str,
       alt_text  = "A photo of " + artist_name;
-
+  
+  console.log("Uploading media to Twitter...");
   twitter.post('media/upload', {
     media_data: base64img
   }, function (error, data, response) {
     if (error) {
-
+      console.log("Error uploading media:");
+      console.log(error);
     } else {
       media_id_str = data.media_id_string;
    
@@ -50,22 +53,30 @@ function postMediaTweet (twitter, message, ID, file_path, artist_name) {
           text: alt_text
         }
       };
-
+      
+      console.log("Creating image metadata...");
       T.post('media/metadata/create', meta_data, function (error, data, response) {
         if (error) {
-
+          console.log("Error creating media metadata:");
+          console.log(error);
         } else {
           var params = {
             status                : message,
             in_reply_to_status_id : ID,
             media_ids             : [media_id_str]
           };
-
+          console.log("Posting Tweet...");
           twitter.post('statuses/update', params, function (error, data, response) {
             if (error) {
-
+              console.log("Error posting tweet:");
+              console.log(error);
             } else {
-
+              console.log("Reply posted! {");
+              console.log("  status: " + message);
+              console.log("  in_reply_to_status_id: " + ID);
+              console.log("  media_id: " + media_id_str);
+              console.log("}");
+              console.log("");
             }
           });
         }
@@ -75,14 +86,20 @@ function postMediaTweet (twitter, message, ID, file_path, artist_name) {
 }
 
 function postTextTweet(twitter, message, ID) {
+  console.log("Posting tweet...");
   twitter.post('statuses/update', {
     status                : message,
     in_reply_to_status_id : ID
   }, function (err, data, response) {
     if(err) {
-
+      console.log("Error posting tweet:");
+      console.log(err);
     } else {
-
+      console.log("Reply posted! {");
+      console.log("  status: " + message);
+      console.log("  in_reply_to_status_id: " + ID);
+      console.log("}");
+      console.log("");
     }
   });
 }
@@ -110,6 +127,15 @@ function postTweet(twitter, ID, username, artist) {
 
 module.exports = {
   init: function() {
+    console.log("Creating twit object with the following credentials {");
+    console.log("  Twitter handle: @" + process.env.TWITTER_USERNAME);
+    console.log("  Consumer Key: " + process.env.CONSUMER_KEY);
+    console.log("  Consumer Secret: " + process.env.CONSUMER_SECRET);
+    console.log("  Access Token: " + process.env.ACCESS_TOKEN_KEY);
+    console.log("  Access Secret: " + process.env.ACCESS_TOKEN_SECRET);
+    console.log("}");
+    console.log("");
+    
     T = new twit({
       consumer_key:         process.env.CONSUMER_KEY,
       consumer_secret:      process.env.CONSUMER_SECRET,
@@ -123,8 +149,20 @@ module.exports = {
   },
   
   setupStream: function () {
+    console.log("Setting up Twitter stream with the following parameters {");
+    console.log("  track: @" + username);
+    console.log("}");
+    console.log("");
+    
     T.stream('statuses/filter', {track: '@'+username})
       .on('tweet', function (tweet) {
+        console.log("Tweet recieved {");
+        console.log("  username: "  + tweet.user.screen_name);
+        console.log("  tweet: "     + tweet.text);
+        console.log("  status_ID: " + tweet.id_str)
+        console.log("}");
+        console.log("");
+
         message = utils.sanitze(tweet.text);
 
         if (message.indexOf("tell me about ") !== -1) {
