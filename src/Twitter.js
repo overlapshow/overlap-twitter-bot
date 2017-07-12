@@ -10,6 +10,9 @@ var T           = null,
     username    = "",
     image_reply = true;
 
+// Local Functions ======================
+// Takes an object from Artist.js and uses the data to form a response.
+// Responds with generic reply if undefined.
 function makeResponseFromArtist(artist) {
   if (artist === undefined) {
     return 'Oops, I didn\'t quite catch you there! Try again or read about our artists here: http://overlap.show/';
@@ -17,6 +20,7 @@ function makeResponseFromArtist(artist) {
   return artist.snippet+' More info: http://overlap.show/artist/'+artist.slug;
 }
 
+// Takes an object from Artist.js and returns the file path of an artist's headshot.
 function getMediaURLFromArtist(artist) {
   if (artist === undefined) {
     return null;
@@ -24,8 +28,10 @@ function getMediaURLFromArtist(artist) {
   return artist.photo;
 }
 
+// Posts a tweet reply with an attatched image.
 function postMediaTweet (twitter, message, ID, file_path, artist_name) {
-  console.log("Encoding " + file_path + " to base64...")
+  console.log("Encoding " + file_path + " to base64...");
+  // Encode image as base64 before uploading to Twitter.
   var base64img = fs.readFileSync(file_path, {encoding: 'base64'}),
       media_id_str,
       alt_text  = "A photo of " + artist_name;
@@ -39,7 +45,8 @@ function postMediaTweet (twitter, message, ID, file_path, artist_name) {
       console.log(error);
     } else {
       media_id_str = data.media_id_string;
-      
+   
+      // Generate metadata with alt_text for accessability.
       var meta_data = {
         media_id: media_id_str,
         alt_text: {
@@ -103,8 +110,10 @@ function postTweet(twitter, ID, username, artist) {
     postMediaTweet(
       twitter, 
       message, 
-      ID, 
+      ID,
+      // Absolute path to image file.
       __dirname + artist.photo, 
+      // Artists full name used for image alt-text.
       artist.keywords[1]
     );
   } else {
@@ -162,15 +171,17 @@ module.exports = {
             user           = tweet.user.screen_name,
             selectedArtist = [];
 
+        // Cycle through every artist and check if any of their keywords are included.
         for (var i = 0; i < artists.length; i++) {
           for (var j = 0; j < artists[i].keywords.length; j++) {
-            // if the keyword is part of the tweet then set the artist
             if (message.indexOf(artists[i].keywords[j]) > -1) {
               selectedArtist.push(artists[i]);
             }
           };
         };
 
+        // If we recognised the keywords tweet some info!
+        // If not, reply with generic response.
         if (selectedArtist.length > 0) {
           for (var i = 0; i < selectedArtist.length; i++) {
             postTweet(
@@ -192,6 +203,7 @@ module.exports = {
     });
   },
   
+  // Close Twitter stream on exit.
   exit: function () {
     T.stream.stop();
   }
