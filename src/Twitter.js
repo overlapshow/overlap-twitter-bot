@@ -8,7 +8,7 @@ var twit      = require('twit'),
 // Local Variables ======================
 var T           = null,
     username    = "",
-    image_reply = false;
+    image_reply = true;
 
 function makeResponseFromArtist(artist) {
   if (artist === undefined) {
