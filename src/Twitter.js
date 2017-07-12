@@ -6,8 +6,9 @@ var twit      = require('twit'),
 
 
 // Local Variables ======================
-var T         = null,
-    username  = "";
+var T           = null,
+    username    = "",
+    image_reply = false;
 
 function makeResponseFromArtist(artist) {
   if (artist === undefined) {
@@ -23,7 +24,7 @@ function getMediaURLFromArtist(artist) {
   return artist.photo;
 }
 
-function postMediaTweet (twitter, response, ID, file_path, artist_name) {
+function postMediaTweet (twitter, message, ID, file_path, artist_name) {
   console.log("Encoding " + file_path + " to base64...")
   var base64img = fs.readFileSync(file_path, {encoding: 'base64'}),
       media_id_str,
@@ -52,14 +53,11 @@ function postMediaTweet (twitter, response, ID, file_path, artist_name) {
           console.log("Error creating media metadata:");
           console.log(error);
         } else {
-          console.log("Posting tweet...");
-          
           var params = {
-            status                : response,
+            status                : message,
             in_reply_to_status_id : ID,
             media_ids             : [media_id_str]
           };
-          
           console.log("Posting Tweet...");
           twitter.post('statuses/update', params, function (error, data, response) {
             if (error) {
@@ -67,7 +65,7 @@ function postMediaTweet (twitter, response, ID, file_path, artist_name) {
               console.log(error);
             } else {
               console.log("Reply posted! {");
-              console.log("  status: " + response);
+              console.log("  status: " + message);
               console.log("  in_reply_to_status_id: " + ID);
               console.log("  media_id: " + media_id_str);
               console.log("}");
@@ -80,10 +78,10 @@ function postMediaTweet (twitter, response, ID, file_path, artist_name) {
   })
 }
 
-function postTextTweet(twitter, response, ID) {
+function postTextTweet(twitter, message, ID) {
   console.log("Posting tweet...");
   twitter.post('statuses/update', {
-    status                : response,
+    status                : message,
     in_reply_to_status_id : ID
   }, function (err, data, response) {
     if(err) {
@@ -91,7 +89,7 @@ function postTextTweet(twitter, response, ID) {
       console.log(err);
     } else {
       console.log("Reply posted! {");
-      console.log("  status: " + response);
+      console.log("  status: " + message);
       console.log("  in_reply_to_status_id: " + ID);
       console.log("}");
       console.log("");
@@ -100,11 +98,21 @@ function postTextTweet(twitter, response, ID) {
 }
 
 function postTweet(twitter, ID, username, artist) {
-  var response    = '@'+username+' '+makeResponseFromArtist(artist);
-  if (artist !== undefined) {   
-    postMediaTweet(twitter, response, ID, __dirname + artist.photo, artist.keywords[1]);
+  var message = '@' + username + ' ' + makeResponseFromArtist(artist);
+  if (artist !== undefined && image_reply) {
+    postMediaTweet(
+      twitter, 
+      message, 
+      ID, 
+      __dirname + artist.photo, 
+      artist.keywords[1]
+    );
   } else {
-    postTextTweet(twitter, response, ID);
+    postTextTweet(
+      twitter, 
+      message, 
+      ID
+    );
   }
 }
 
@@ -126,6 +134,7 @@ module.exports = {
       access_token_secret:  process.env.ACCESS_TOKEN_SECRET,
       timeout_ms:           60*1000,
     });
+    
     username = process.env.TWITTER_USERNAME;
   },
   
@@ -147,8 +156,7 @@ module.exports = {
       
       message = utils.sanitze(tweet.text);
       
-      if (message.substring(0, 27) === "@overlapshow tell me about ") {
-        var tweetText      = message.slice(27),
+      if (message.indexOf("tell me about ") !== -1) {
             statusID       = tweet.id_str,
             user           = tweet.user.screen_name,
             selectedArtist = [];
@@ -156,7 +164,7 @@ module.exports = {
         for (var i = 0; i < artists.length; i++) {
           for (var j = 0; j < artists[i].keywords.length; j++) {
             // if the keyword is part of the tweet then set the artist
-            if (tweetText.indexOf(artists[i].keywords[j]) > -1) {
+            if (message.indexOf(artists[i].keywords[j]) > -1) {
               selectedArtist.push(artists[i]);
             }
           };
@@ -164,10 +172,20 @@ module.exports = {
 
         if (selectedArtist.length > 0) {
           for (var i = 0; i < selectedArtist.length; i++) {
-            postTweet(T, statusID, user, selectedArtist[i]);
+            postTweet(
+              T, 
+              statusID, 
+              user, 
+              selectedArtist[i]
+            );
           } 
         } else {
-          postTweet(T, statusID, user, undefined);
+          postTweet(
+            T, 
+            statusID, 
+            user, 
+            undefined
+          );
         }
       }
     });
