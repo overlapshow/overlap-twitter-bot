@@ -23,6 +23,6 @@
   "dependencies": {
     "dotenv": "^4.0.0",
     "twit": "^2.2.9",
-    "base64-img": "^1.0.3"
+    "deasync": "^0.1.10"
   }
 }
