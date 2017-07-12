@@ -12,7 +12,7 @@ module.exports = [
     photo: '/img/eleni.jpeg',
   },
   {
-    keywords: ['arturas', 'arturas bondarciukas'],
+    keywords: ['arturas', 'arturas bondarciukas', '@abondarciukas'],
     slug: 'arturas bondarciukas',
     snippet: 'Arturas is working with computer generated imagery, computational arts, and traditional photography.',
     photo: '/img/arturas.jpeg',
