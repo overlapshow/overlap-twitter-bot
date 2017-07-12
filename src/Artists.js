@@ -42,7 +42,7 @@ module.exports = [
     photo: '/img/diane.jpeg',
   },
   {
-    keywords: ['saskia', 'saskia freeke', '@sasj_nl'],
+    keywords: ['saskia', 'saskia freeke', '@sasj nl'],
     slug: 'saskia-freeke',
     snippet: 'Saskia\'s art work focuses on structure, geometry and playfulness by creating novel, tangible interfaces.',
     photo: '/img/saskia.jpeg',
