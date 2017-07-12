@@ -144,7 +144,7 @@ module.exports = [
     photo: '/img/jules.jpeg',
   },
   {
-    keywords: ['sabrina', 'sabrina recoules quang'],
+    keywords: ['sabrina', 'sabrina recoules quang', '@reco0021'],
     slug: 'sabrina-recoules-quang',
     snippet: 'Sabrina is exploring the similarities between shadow theatre, embodiment and computational practice.',
     photo: '/img/sabrina.jpeg',
