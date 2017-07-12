@@ -23,6 +23,5 @@
   "dependencies": {
     "dotenv": "^4.0.0",
     "twit": "^2.2.9",
-    "deasync": "^0.1.10"
   }
 }
